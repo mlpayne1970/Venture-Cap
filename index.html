@@ -4632,8 +4632,14 @@
       }
 
       if (!p.isAI) {
+        // Check if ALL tiles are unplayable
+        const allUnplayable = p.tiles.length > 0 && !hasLegalMove(p);
+        
         if (tilePlacedThisTurn) {
           statusDiv.textContent = 'Buy equity or End Turn';
+        } else if (allUnplayable) {
+          statusDiv.textContent = '⚠️ No playable tiles! Click End Turn to swap.';
+          statusDiv.style.color = 'var(--accent-danger)';
         } else if (!selectedTile) {
           statusDiv.textContent = 'Place a tile';
         } else {
@@ -4643,8 +4649,11 @@
         statusDiv.textContent = '';
       }
 
+      // Check if all tiles are unplayable - allow ending turn without placing
+      const allTilesUnplayable = !p.isAI && p.tiles.length > 0 && !hasLegalMove(p);
+      
       const endBtn = document.getElementById('endTurnBtn');
-      endBtn.disabled = p.isAI || gameOver || !tilePlacedThisTurn;
+      endBtn.disabled = p.isAI || gameOver || (!tilePlacedThisTurn && !allTilesUnplayable);
       
       const undoBtn = document.getElementById('undoBtn');
       undoBtn.disabled = p.isAI || gameOver || !tilePlacedThisTurn || !lastPlacedTile;
@@ -5592,12 +5601,20 @@
       const p = players[currentPlayer];
       if (p.isAI) return;
 
-      if (!tilePlacedThisTurn) {
+      // Check if all tiles are unplayable
+      const allTilesUnplayable = p.tiles.length > 0 && !hasLegalMove(p);
+      
+      if (!tilePlacedThisTurn && !allTilesUnplayable) {
         log("You must fund a startup (place a tile) before ending your turn!", "error");
         return;
       }
+      
+      // If player couldn't place a tile, log it and force tile swap
+      if (!tilePlacedThisTurn && allTilesUnplayable) {
+        log("All your tiles are unplayable this turn - swapping tiles.", "warning");
+      }
 
-      if (buysRemaining === MAX_BUYS_PER_TURN) {
+      if (buysRemaining === MAX_BUYS_PER_TURN && tilePlacedThisTurn) {
         const active = allActiveChains();
         const hasAvailableStock = active.some(ch => {
           const price = getChainPrice(ch);
@@ -5605,7 +5622,7 @@
           return available > 0 && p.money >= price;
         });
 
-        if (hasAvailableStock && tilePlacedThisTurn) {
+        if (hasAvailableStock) {
           const confirm = window.confirm(
             "You haven't purchased any equity this turn and there are shares available to buy.\n\n" +
             "Are you sure you want to end your turn?"
@@ -5619,13 +5636,20 @@
       const unplayableTiles = checkUnplayableTiles(p);
       if (unplayableTiles.length > 0 && deck.length > 0) {
         const tileList = unplayableTiles.join(', ');
-        const confirm = window.confirm(
-          `You have ${unplayableTiles.length} unplayable tile(s): ${tileList}\n\n` +
-          "These tiles would merge two or more companies that have gone public (IPO).\n\n" +
-          "Would you like to discard them and draw new tiles?"
-        );
         
-        if (confirm) {
+        // If ALL tiles are unplayable, auto-swap without asking
+        // Otherwise, ask the player
+        let shouldSwap = allTilesUnplayable;
+        
+        if (!shouldSwap) {
+          shouldSwap = window.confirm(
+            `You have ${unplayableTiles.length} unplayable tile(s): ${tileList}\n\n` +
+            "These tiles would merge two or more companies that have gone public (IPO).\n\n" +
+            "Would you like to discard them and draw new tiles?"
+          );
+        }
+        
+        if (shouldSwap) {
           let discardedCount = 0;
           let tilesToKeep = [];
           p.tiles.forEach(tile => {
