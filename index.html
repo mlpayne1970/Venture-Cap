@@ -679,6 +679,46 @@
       margin-top: 4px;
       color: var(--text-secondary);
     }
+    .playerCard .player-holdings {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .playerCard .holding-chip {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      line-height: 1.5;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px var(--shadow-color);
+    }
+    .playerCard .holdings-empty {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* THREAT / OPPORTUNITY PANEL */
+    #threatPanel { display: none; }
+    #threatPanel.visible { display: block; }
+    #threatPanel .threat-item {
+      font-size: 12.5px;
+      padding: 7px 10px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      background: var(--bg-tertiary);
+      border-left: 4px solid var(--accent-warning);
+      color: var(--text-primary);
+    }
+    #threatPanel .threat-item.danger { border-left-color: var(--accent-danger, #f44336); }
+    #threatPanel .threat-item.opportunity { border-left-color: var(--accent-secondary, #4caf50); }
+    #threatPanel .threat-empty {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
 
     /* STOCK PANEL */
     #stockPanel h2 {
@@ -945,7 +985,67 @@
       background: #cd7f32;
       color: #333;
     }
-    
+
+    /* ===== CINEMATIC POLISH ===== */
+    /* Merger announcement */
+    .modal.merger-modal {
+      animation: mergerPop 0.45s cubic-bezier(0.18, 0.9, 0.3, 1.3);
+      border: 2px solid #9c27b0;
+      box-shadow: 0 8px 40px rgba(156, 39, 176, 0.45);
+    }
+    @keyframes mergerPop {
+      0%   { transform: scale(0.7); opacity: 0; }
+      60%  { transform: scale(1.04); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .merger-banner {
+      text-align: center;
+      font-size: 26px !important;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 10px 8px;
+      margin: -4px -8px 14px !important;
+      border-radius: 8px;
+      color: #fff !important;
+      background: linear-gradient(110deg, #7b1fa2, #c2185b, #7b1fa2);
+      background-size: 200% auto;
+      animation: bannerShimmer 2.2s linear infinite;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    }
+    @keyframes bannerShimmer {
+      to { background-position: 200% center; }
+    }
+    #mergerDetails > div { animation: rowRise 0.4s ease-out both; }
+    #mergerDetails > div:nth-child(2) { animation-delay: 0.06s; }
+    #mergerDetails > div:nth-child(3) { animation-delay: 0.12s; }
+    #mergerDetails > div:nth-child(4) { animation-delay: 0.18s; }
+    #mergerDetails > div:nth-child(5) { animation-delay: 0.24s; }
+    @keyframes rowRise {
+      from { transform: translateY(10px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    /* Endgame winner reveal */
+    .winner-row.first.champion {
+      position: relative;
+      background: linear-gradient(135deg, #ffe259, #ffd700 55%, #ffb300);
+      animation: championGlow 1.6s ease-in-out infinite;
+    }
+    @keyframes championGlow {
+      0%, 100% { box-shadow: 0 0 14px rgba(255, 196, 0, 0.55); }
+      50%      { box-shadow: 0 0 28px rgba(255, 196, 0, 0.95); }
+    }
+    .winner-row .winner-crown {
+      font-size: 22px;
+      margin-right: 6px;
+      display: inline-block;
+      animation: crownBob 1.4s ease-in-out infinite;
+    }
+    @keyframes crownBob {
+      0%, 100% { transform: translateY(0) rotate(-4deg); }
+      50%      { transform: translateY(-3px) rotate(4deg); }
+    }
+    .winner-row .winner-total { font-variant-numeric: tabular-nums; }
+
     /* TALLY MODAL */
     #tallyModal .modal {
       min-width: 550px;
@@ -1344,18 +1444,40 @@
       60% { content: '..'; }
       80%, 100% { content: '...'; }
     }
-    #aiThinkingPanel .ai-consideration {
-      font-size: 13px;
-      color: #4a148c;
+    /* Rolling, readable AI thought log (newest on top, older dimmed) */
+    #aiThoughtLog {
       margin-top: 8px;
-      padding-left: 20px;
-      border-left: 3px solid #ce93d8;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 200px;
+      overflow-y: auto;
     }
-    #aiThinkingPanel .ai-decision {
+    #aiThoughtLog .ai-thought {
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.55);
+      border-left: 3px solid #ab47bc;
+      animation: thoughtIn 0.25s ease-out;
+    }
+    #aiThoughtLog .ai-thought.dim { opacity: 0.5; }
+    @keyframes thoughtIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    #aiThoughtLog .ai-thought .who {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6a1b9a;
+    }
+    #aiThoughtLog .ai-thought .did {
       font-size: 13px;
+      font-weight: 600;
       color: #2e7d32;
-      margin-top: 6px;
-      font-weight: 500;
+    }
+    #aiThoughtLog .ai-thought .why {
+      font-size: 12px;
+      color: #4a148c;
     }
 
     /* REPLAY CONTROLS */
@@ -3248,14 +3370,7 @@
           <button id="newGameBtn" onclick="showDifficultyModal()" style="padding: 6px 14px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; background: var(--accent-warning); color: white; transition: 0.2s ease;">New Game</button>
         </div>
       </div>
-      
-      <!-- AI Thinking Panel -->
-      <div id="aiThinkingPanel">
-        <div class="ai-name"><span id="aiThinkingName">AI</span> is thinking<span class="thinking-dots"></span></div>
-        <div class="ai-consideration" id="aiConsideration"></div>
-        <div class="ai-decision" id="aiDecision"></div>
-      </div>
-      
+
       <div class="panel">
         <h2 id="boardTitle">Board</h2>
         <div id="board"></div>
@@ -3276,12 +3391,22 @@
       <div id="stockPanel" class="panel">
         <h2>Equity Market</h2>
       </div>
+
+      <!-- AI Thinking Panel (fills the middle column) -->
+      <div id="aiThinkingPanel">
+        <div class="ai-name"><span id="aiThinkingName">AI</span><span id="aiThinkingDots"> is thinking<span class="thinking-dots"></span></span></div>
+        <div id="aiThoughtLog"></div>
+      </div>
     </div>
 
     <div class="rightPane">
       <div id="playersPanel" class="panel">
         <h2>Players</h2>
         <div id="playersList"></div>
+      </div>
+      <div id="threatPanel" class="panel">
+        <h2>⚠️ Watch List</h2>
+        <div id="threatList"></div>
       </div>
       <div id="gameLog" class="panel">
         <h2>Game Log</h2>
@@ -3308,8 +3433,8 @@
   </div>
 
   <div id="mergerBackdrop" class="modal-backdrop">
-    <div class="modal">
-      <h3>Company Acquisition!</h3>
+    <div class="modal merger-modal">
+      <h3 class="merger-banner">🤝 Acquisition</h3>
       <div id="mergerDetails"></div>
       <div class="modal-buttons">
         <button class="primary" onclick="closeMergerAnnouncement()">Continue</button>
@@ -3581,6 +3706,18 @@
         <label class="setting-row">
           <span>Confirm End Turn</span>
           <input type="checkbox" id="confirmEndTurn" checked onchange="toggleConfirmEnd(this.checked)">
+        </label>
+        <label class="setting-row">
+          <span title="Show every player's share holdings per company">Show Opponent Holdings</span>
+          <input type="checkbox" id="showHoldings" checked onchange="toggleHoldings(this.checked)">
+        </label>
+        <label class="setting-row">
+          <span title="Flag chains where you're about to lose majority or a merger is imminent">Show Threat Panel</span>
+          <input type="checkbox" id="showThreats" checked onchange="toggleThreats(this.checked)">
+        </label>
+        <label class="setting-row">
+          <span title="Surface the AI's reasoning as it plays">Explain AI Moves</span>
+          <input type="checkbox" id="explainAI" checked onchange="toggleExplainAI(this.checked)">
         </label>
       </div>
       
@@ -3991,7 +4128,8 @@
       bankSharesBeforePlacement = null;
       endGameReason = "";
       pendingReplacementTile = null;
-      
+      aiThoughts = [];
+
       // Reset replay
       gameReplay = [];
       replayIndex = 0;
@@ -4296,6 +4434,113 @@
       renderPlayers();
       renderStock();
       renderTurn();
+      renderThreats();
+    }
+
+    // ===== THREAT / OPPORTUNITY PANEL (the human's turn) =====
+    function renderThreats() {
+      const panel = document.getElementById('threatPanel');
+      const listEl = document.getElementById('threatList');
+      if (!panel || !listEl) return;
+
+      const me = players && players[currentPlayer];
+      const isMyTurn = me && !me.isAI && !gameOver;
+      if (!gameSettings.showThreats || !isMyTurn) {
+        panel.classList.remove('visible');
+        return;
+      }
+      panel.classList.add('visible');
+
+      const items = [];
+      const active = allActiveChains();
+
+      // 1) Majority you hold that an opponent is within 2 shares of taking
+      active.forEach(ch => {
+        if (getSharePosition(ch, me) !== 'majority') return;
+        const mine = me.shares[ch] || 0;
+        let topOpp = 0, oppName = '';
+        players.forEach((pl, idx) => {
+          if (idx === currentPlayer) return;
+          const s = pl.shares[ch] || 0;
+          if (s > topOpp) { topOpp = s; oppName = pl.name; }
+        });
+        if (topOpp >= mine - 2 && !isChainSafe(ch)) {
+          items.push({ cls: 'danger', html: `<strong>${ch}</strong>: your majority is exposed — ${oppName} has ${topOpp} vs your ${mine}.` });
+        }
+      });
+
+      // 2) A chain about to "go public" (safe) where you don't hold majority
+      active.forEach(ch => {
+        const size = countChainTiles(ch);
+        if (size >= SAFE_SIZE - 2 && size < SAFE_SIZE && getSharePosition(ch, me) !== 'majority') {
+          items.push({ cls: '', html: `<strong>${ch}</strong> is ${SAFE_SIZE - size} tile(s) from going public — lock a position before majority freezes.` });
+        }
+      });
+
+      // 3) A merger you could trigger with a tile in your rack (opportunity)
+      const seen = {};
+      me.tiles.forEach(tile => {
+        const { r, c } = coordToRC(tile);
+        if (!isPlacementLegal(r, c)) return;
+        const t = getPlacementType(r, c);
+        if (t.type === 'merger') {
+          const key = t.chains.slice().sort().join('+');
+          if (seen[key]) return;
+          seen[key] = true;
+          items.push({ cls: 'opportunity', html: `<strong>${tile}</strong> would merge ${t.chains.join(' + ')} — bonus payout opportunity.` });
+        } else if (t.type === 'newChain') {
+          if (seen['_found']) return;
+          seen['_found'] = true;
+          items.push({ cls: 'opportunity', html: `<strong>${tile}</strong> can found a new company (free founder's share).` });
+        }
+      });
+
+      if (items.length === 0) {
+        listEl.innerHTML = '<div class="threat-empty">Nothing pressing. Build your position.</div>';
+      } else {
+        listEl.innerHTML = items.map(it => `<div class="threat-item ${it.cls}">${it.html}</div>`).join('');
+      }
+
+      // Your turn: keep the AI's recent thoughts on screen so you can actually
+      // read them, but stop the "is thinking" animation.
+      renderAIThoughts(false);
+    }
+
+    // ===== EXPLAIN THE AI: surface what the bot is thinking =====
+    // Thoughts accumulate into a short rolling list (newest on top) so they stay
+    // readable instead of a single line getting overwritten every fraction of a second.
+    let aiThoughts = [];
+    const AI_THOUGHTS_MAX = 6;
+
+    function escHtml(s) {
+      return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    }
+
+    function renderAIThoughts(thinking) {
+      const panel = document.getElementById('aiThinkingPanel');
+      const logEl = document.getElementById('aiThoughtLog');
+      const dots = document.getElementById('aiThinkingDots');
+      const nameEl = document.getElementById('aiThinkingName');
+      if (!panel || !logEl) return;
+      if (!gameSettings.explainAI || aiThoughts.length === 0) { panel.classList.remove('visible'); return; }
+      panel.classList.add('visible');
+      if (dots) dots.style.display = thinking ? '' : 'none';
+      if (nameEl) nameEl.textContent = thinking ? aiThoughts[0].label : '🧠 Recent AI moves';
+      logEl.innerHTML = aiThoughts.map((t, i) =>
+        `<div class="ai-thought${i > 0 ? ' dim' : ''}">` +
+          `<span class="who">${escHtml(t.label)}</span> · <span class="did">${escHtml(t.dec)}</span>` +
+          (t.cons ? `<div class="why">${escHtml(t.cons)}</div>` : '') +
+        `</div>`
+      ).join('');
+    }
+
+    function aiExplain(player, consideration, decision) {
+      if (!gameSettings.explainAI || !player || !player.isAI || !decision) return;
+      const label = (player.personalityData ? player.personalityData.icon + ' ' : '') + player.name;
+      aiThoughts.unshift({ label, dec: decision, cons: consideration || '' });
+      if (aiThoughts.length > AI_THOUGHTS_MAX) aiThoughts.length = AI_THOUGHTS_MAX;
+      renderAIThoughts(true);
+      log(`${player.name} — ${decision}`, 'ai');
     }
 
     function renderBoard() {
@@ -4458,6 +4703,33 @@
 
         card.appendChild(nameDiv);
         card.appendChild(moneyDiv);
+
+        // ===== INFO-PARITY HUD: per-chain share holdings =====
+        if (gameSettings.showHoldings) {
+          const lightChains = ['Scribble', 'Clickr', 'OmniCorp'];
+          const held = CHAINS.filter(ch => (p.shares[ch] || 0) > 0);
+          const holdingsDiv = document.createElement('div');
+          holdingsDiv.className = 'player-holdings';
+          if (held.length === 0) {
+            holdingsDiv.innerHTML = '<span class="holdings-empty">no holdings</span>';
+          } else {
+            held.forEach(ch => {
+              const pos = getSharePosition(ch, p);
+              const chip = document.createElement('span');
+              chip.className = 'holding-chip';
+              chip.style.background = CHAIN_COLORS[ch];
+              chip.style.color = lightChains.includes(ch) ? '#222' : '#fff';
+              let mark = '';
+              if (pos === 'majority' || pos === 'tied-majority') mark = ' ★';
+              else if (pos === 'minority' || pos === 'tied-minority') mark = ' ◆';
+              chip.textContent = `${ch.substring(0,3)} ${p.shares[ch]}${mark}`;
+              chip.title = `${ch}: ${p.shares[ch]} shares (${pos.replace('-', ' ')})`;
+              holdingsDiv.appendChild(chip);
+            });
+          }
+          card.appendChild(holdingsDiv);
+        }
+
         list.appendChild(card);
       });
     }
@@ -6186,17 +6458,67 @@
 
             if (moves.length > 0) {
                 moves.sort((a, b) => b.score - a.score);
-                
-                // Difficulty-based move selection
-                let selectedMove = moves[0];
-                const mistakeRoll = Math.random();
-                
-                if (mistakeRoll < diffSettings.mistakeProbability && moves.length > 1) {
-                    // Make a "mistake" - pick a suboptimal move
-                    const mistakeIndex = Math.min(Math.floor(Math.random() * 3) + 1, moves.length - 1);
-                    selectedMove = moves[mistakeIndex];
+
+                // ===== ENDGAME TIMING =====
+                // Strong AIs shouldn't voluntarily END the game (push a chain to 41+)
+                // unless they're actually ahead -- otherwise they hand the win to whoever
+                // stacked the most bonuses. If behind and a non-ending move exists, take it.
+                let candidatePool = moves;
+                if (diffSettings.endgamePushEnabled && moves.length > 1) {
+                    const myWorth = calculateNetWorthWithBonuses(p);
+                    let leading = true;
+                    players.forEach((pl, idx) => {
+                        if (idx !== currentPlayer && calculateNetWorthWithBonuses(pl) >= myWorth) leading = false;
+                    });
+                    if (!leading) {
+                        const endsGame = (m) => {
+                            const res = m.result;
+                            if (res.type === 'merger') {
+                                let total = 0;
+                                res.chains.forEach(c2 => { total += countChainTiles(c2); });
+                                total += simulateNeutralGroup(m.r, m.c).length;
+                                return total >= ENDGAME_SIZE;
+                            }
+                            if (res.type === 'expand') {
+                                return countChainTiles(res.chain) + simulateNeutralGroup(m.r, m.c).length >= ENDGAME_SIZE;
+                            }
+                            return false;
+                        };
+                        const nonEnding = moves.filter(m => !endsGame(m));
+                        if (nonEnding.length > 0) candidatePool = nonEnding;
+                    }
                 }
-                
+
+                // Difficulty-based move selection
+                let selectedMove = candidatePool[0];
+                const mistakeRoll = Math.random();
+
+                if (mistakeRoll < diffSettings.mistakeProbability && candidatePool.length > 1) {
+                    // Make a "mistake" - pick a suboptimal move
+                    const mistakeIndex = Math.min(Math.floor(Math.random() * 3) + 1, candidatePool.length - 1);
+                    selectedMove = candidatePool[mistakeIndex];
+                }
+
+                // Explain the tile choice
+                (function(){
+                    const res = selectedMove.result || {};
+                    let cons = '', dec = '';
+                    if (res.type === 'merger') {
+                        cons = 'Going after the merger bonuses.';
+                        dec = `Playing ${selectedMove.tile} to merge ${res.chains.join(' + ')}`;
+                    } else if (res.type === 'newChain') {
+                        cons = (p.shares && Object.keys(p.shares).some(c=>p.shares[c]>0)) ? 'Reviving a company I already hold shares in.' : 'Grabbing the free founder share.';
+                        dec = `Founding a company at ${selectedMove.tile}`;
+                    } else if (res.type === 'expand') {
+                        cons = `Growing ${res.chain} to push its share price up.`;
+                        dec = `Expanding ${res.chain} at ${selectedMove.tile}`;
+                    } else {
+                        cons = 'Developing open board space.';
+                        dec = `Placing ${selectedMove.tile}`;
+                    }
+                    aiExplain(p, cons, dec);
+                })();
+
                 // Execute the move
                 const placeResult = placeTile(selectedMove.r, selectedMove.c);
                 
@@ -6775,11 +7097,20 @@
                     const phase = getGamePhase();
                     let CASH_RESERVE = getDynamicCashReserve(p);
                     
-                    // At IPO difficulty, almost no reserve in early/mid game
+                    // At IPO difficulty: stay aggressive, but hold back enough to make
+                    // bonus-positioning buys into the most valuable IMMINENT merger
+                    // (an acquirable chain, size 1-10). Near-zero reserves caused the
+                    // AI to over-extend and miss the highest-EV plays right before a merger.
                     if (currentDifficulty === 'ipo') {
-                        if (phase === 'EARLY') CASH_RESERVE = 100;
-                        else if (phase === 'MID') CASH_RESERVE = 200;
-                        else if (phase === 'LATE') CASH_RESERVE = 100;
+                        let imminentPrice = 0;
+                        active.forEach(ch => {
+                            const sz = countChainTiles(ch);
+                            if (sz > 0 && sz < SAFE_SIZE) imminentPrice = Math.max(imminentPrice, getChainPrice(ch));
+                        });
+                        const mergerReserve = imminentPrice * 3; // ~3 shares to swing majority
+                        if (phase === 'EARLY') CASH_RESERVE = Math.max(100, mergerReserve);
+                        else if (phase === 'MID') CASH_RESERVE = Math.max(200, mergerReserve);
+                        else if (phase === 'LATE') CASH_RESERVE = Math.max(100, Math.floor(mergerReserve * 0.5));
                         else CASH_RESERVE = 0; // Endgame: spend everything
                     }
                     
@@ -6823,16 +7154,33 @@
 
                         let value = 0;
 
-                        // ===== PRIORITY 0: BLOCK HUMAN FROM MAJORITY (IPO only) =====
-                        if (currentDifficulty === 'ipo' && humanPlayer) {
-                            if (humanPosition === 'majority' && myShares + 3 > humanShares) {
-                                value += 3500; // HUGE priority to steal from human
-                            } else if (humanPosition === 'minority' && myShares + 2 > humanShares) {
-                                value += 2000; // Good to take minority from human
+                        // ===== PRIORITY 0: CONTEST MAJORITY BY EXPECTED VALUE (IPO) =====
+                        // Older versions handed out flat bonuses specifically for attacking
+                        // the human, which made all three AIs gang up on the player
+                        // (kingmaker behavior that feels unfair, not hard). Instead, scale
+                        // to the actual prize at stake and lean on whoever is LEADING the
+                        // game, human or AI.
+                        if (currentDifficulty === 'ipo') {
+                            let gameLeader = null, leaderWorth = -Infinity;
+                            players.forEach((pl, idx) => {
+                                if (idx === currentPlayer) return;
+                                const w = calculateNetWorthWithBonuses(pl);
+                                if (w > leaderWorth) { leaderWorth = w; gameLeader = pl; }
+                            });
+                            const stake = getMajorityBonus(ch); // price * 10
+                            // Chain nearing "safe": majority here is about to be locked in -> high EV
+                            if (size >= 6 && size < SAFE_SIZE) {
+                                if (position !== 'majority' && myShares + 3 > maxOpponentShares && available > 0) {
+                                    value += stake * 0.25; // grab a soon-permanent majority
+                                }
+                                // Deny the game leader from locking a big majority here
+                                if (leaderInChain && leaderInChain === gameLeader && position !== 'majority' && myShares + 3 > maxOpponentShares) {
+                                    value += stake * 0.15;
+                                }
                             }
-                            // Extra value if human is close to locking majority in safe chain
-                            if (size >= 8 && size < 11 && humanShares >= 5 && humanPosition !== 'majority') {
-                                value += 1500; // Block human before chain goes safe
+                            // Large chains: contest minority EV too
+                            if (size >= SAFE_SIZE && position === 'none' && available > 0 && myShares + 2 >= secondOpponentShares && secondOpponentShares > 0) {
+                                value += getMinorityBonus(ch) * 0.1;
                             }
                         }
 
@@ -6984,8 +7332,20 @@
                         sharesBought.forEach(x => counts[x] = (counts[x] || 0) + 1);
                         const logStr = Object.entries(counts).map(([k,v]) => `${v} ${k}`).join(', ');
                         log(`${p.name} bought: ${logStr}.`, 'ai');
+                        // Explain the dominant buy
+                        let topChain = null, topN = 0;
+                        Object.entries(counts).forEach(([k,v]) => { if (v > topN) { topN = v; topChain = k; } });
+                        if (topChain) {
+                            const pos = getSharePosition(topChain, p);
+                            let cons;
+                            if (pos === 'majority' || pos === 'tied-majority') cons = `Securing majority in ${topChain} for the bigger bonus.`;
+                            else if (pos === 'minority' || pos === 'tied-minority') cons = `Holding minority in ${topChain} to share the payout.`;
+                            else cons = `Building toward a position in ${topChain}.`;
+                            aiExplain(p, cons, `Buying ${topN} ${topChain}`);
+                        }
                     } else {
                         log(`${p.name} bought no stock.`, 'ai');
+                        aiExplain(p, 'Prices are high or no position is worth taking.', 'Holding cash this turn');
                     }
                 }
             }
@@ -7203,19 +7563,36 @@
       reasonDiv.innerHTML = `🏁 Game Ended: ${endGameReason}`;
       body.appendChild(reasonDiv);
 
+      const countUps = [];
       results.forEach((r, i) => {
         const div = document.createElement('div');
         div.className = 'winner-row';
-        if (i === 0) div.classList.add('first');
+        if (i === 0) div.classList.add('first', 'champion');
         else if (i === 1) div.classList.add('second');
         else if (i === 2) div.classList.add('third');
 
-        let html = `<strong>${i + 1}. ${r.name}</strong><br>`;
-        html += `Total: $${r.total.toLocaleString()}`;
-        
+        const crown = (i === 0) ? '<span class="winner-crown">👑</span>' : '';
+        let html = `<strong>${crown}${i + 1}. ${r.name}</strong><br>`;
+        html += `Total: <span class="winner-total" id="finalTotal${i}">$0</span>`;
+
         div.innerHTML = html;
         body.appendChild(div);
+        countUps.push({ id: `finalTotal${i}`, target: r.total });
       });
+
+      // Animated count-up of final totals
+      const start = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+      const DURATION = 900;
+      function tick(now) {
+        const t = Math.min(1, ((now || Date.now()) - start) / DURATION);
+        const ease = 1 - Math.pow(1 - t, 3);
+        countUps.forEach(cu => {
+          const el = document.getElementById(cu.id);
+          if (el) el.textContent = '$' + Math.round(cu.target * ease).toLocaleString();
+        });
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
       
       log(`The winner is ${results[0].name} with $${results[0].total.toLocaleString()}!`, 'system');
       
@@ -8251,7 +8628,10 @@
         soundVolume: 50,
         aiSpeed: 800,
         showHints: true,
-        confirmEndTurn: true
+        confirmEndTurn: true,
+        showHoldings: true,   // info-parity HUD: opponents' per-chain share standings
+        showThreats: true,    // threat/opportunity panel on your turn
+        explainAI: true       // surface the AI's reasoning as it plays
     };
     
     // Audio context for generating sounds
@@ -8390,6 +8770,24 @@
         gameSettings.confirmEndTurn = enabled;
         saveSettings();
     }
+
+    function toggleHoldings(enabled) {
+        gameSettings.showHoldings = enabled;
+        saveSettings();
+        if (board) renderPlayers();
+    }
+
+    function toggleThreats(enabled) {
+        gameSettings.showThreats = enabled;
+        saveSettings();
+        if (board) renderThreats();
+    }
+
+    function toggleExplainAI(enabled) {
+        gameSettings.explainAI = enabled;
+        saveSettings();
+        if (!enabled) { const panel = document.getElementById('aiThinkingPanel'); if (panel) panel.classList.remove('visible'); }
+    }
     
     function loadSettings() {
         try {
@@ -8404,6 +8802,9 @@
             document.getElementById('aiSpeed').value = gameSettings.aiSpeed;
             document.getElementById('showHints').checked = gameSettings.showHints;
             document.getElementById('confirmEndTurn').checked = gameSettings.confirmEndTurn;
+            if (document.getElementById('showHoldings')) document.getElementById('showHoldings').checked = gameSettings.showHoldings;
+            if (document.getElementById('showThreats')) document.getElementById('showThreats').checked = gameSettings.showThreats;
+            if (document.getElementById('explainAI')) document.getElementById('explainAI').checked = gameSettings.explainAI;
             
             if (gameSettings.soundEnabled) {
                 initAudio();
