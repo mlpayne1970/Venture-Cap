@@ -1,0 +1,61 @@
+=================  VENTURE  AI-vs-AI  BALANCE REPORT  =================
+Setup: 4 AI seats per game. 3 personalities, one doubled at random each
+game; seat order and starting player randomized. Win = highest final net
+worth after liquidation. Personality win rate normalized per seat-instance
+(fair baseline = 25.0%).
+
+################  ANGEL   (1000 games)  ################
+Personality win rate (baseline 25.0%):
+   shark    28.7%   (379 wins / 1319 seats)
+   turtle   19.0%   (256 wins / 1348 seats)
+   fox      27.4%   (365 wins / 1333 seats)
+
+Game length (total AI turns): mean 69.1  median 69  range 50-89
+Largest chain at end:         mean 39.5  median 41  max 58
+
+Endgame trigger:
+   chain hit 41+    66.5%  (665)
+   all chains safe  33.5%  (335)
+   deck empty/stuck  0.0%  (0)
+
+Final scores:
+   winner mean $42,423   loser mean $24,071   spread 1.76x
+   all-seats mean $32,993  (sd $8,303)
+
+################  SERIES_A   (1000 games)  ################
+Personality win rate (baseline 25.0%):
+   shark    26.4%   (357 wins / 1354 seats)
+   turtle   22.7%   (299 wins / 1319 seats)
+   fox      25.9%   (344 wins / 1327 seats)
+
+Game length (total AI turns): mean 76.1  median 77  range 52-93
+Largest chain at end:         mean 39.0  median 41  max 55
+
+Endgame trigger:
+   chain hit 41+    64.3%  (643)
+   all chains safe  35.7%  (357)
+   deck empty/stuck  0.0%  (0)
+
+Final scores:
+   winner mean $42,136   loser mean $25,871   spread 1.63x
+   all-seats mean $34,021  (sd $7,551)
+
+################  IPO   (800 games)  ################
+Personality win rate (baseline 25.0%):
+   shark    26.9%   (289 wins / 1073 seats)
+   turtle   20.6%   (219 wins / 1065 seats)
+   fox      27.5%   (292 wins / 1062 seats)
+
+Game length (total AI turns): mean 77.2  median 78  range 51-94
+Largest chain at end:         mean 38.9  median 41  max 53
+
+Endgame trigger:
+   chain hit 41+    63.5%  (508)
+   all chains safe  36.5%  (292)
+   deck empty/stuck  0.0%  (0)
+
+Final scores:
+   winner mean $41,997   loser mean $25,259   spread 1.66x
+   all-seats mean $33,542  (sd $7,836)
+
+=====================================================================

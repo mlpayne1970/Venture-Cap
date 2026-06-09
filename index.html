@@ -8,6 +8,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <title>Venture Capital - iPad Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     /* ====== CSS VARIABLES FOR THEMING ====== */
     :root {
@@ -148,7 +151,7 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
       margin: 0;
@@ -294,26 +297,34 @@
     .panel {
       background: var(--panel-bg);
       padding: 12px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px var(--shadow-color);
+      border-radius: 12px;
+      box-shadow: 0 1px 2px var(--shadow-color), 0 6px 20px var(--shadow-color);
       margin-bottom: 0;
       border: 1px solid var(--border-color);
     }
 
     .panel h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      color: var(--text-primary);
-      font-weight: 600;
+      margin: 0 0 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+    }
+
+    /* Money and prices line up cleanly */
+    .player-money, .chain-price, .supply-count, .owner-count,
+    .winner-total, .tally-total, .stat-value, .stock-info {
+      font-variant-numeric: tabular-nums;
     }
 
     @media screen and (min-width: 1024px) {
       .panel {
         padding: 14px;
       }
-      
+
       .panel h2 {
-        font-size: 18px;
+        font-size: 13px;
       }
     }
     
@@ -330,7 +341,7 @@
       
       .panel h2 {
         margin: 0 0 6px;
-        font-size: 15px;
+        font-size: 11px;
       }
       
       .header-row {
@@ -497,6 +508,73 @@
       0%, 100% {
         box-shadow: 0 0 0 3px #4caf50, 0 0 12px rgba(76, 175, 80, 0.6);
       }
+      50% {
+        box-shadow: 0 0 0 3px #66bb6a, 0 0 16px rgba(76, 175, 80, 0.8);
+      }
+    }
+
+    /* ====== BOARD READABILITY ====== */
+    .cell { position: relative; }
+
+    /* Chain mark (3-letter company code) + small coordinate on captured tiles */
+    .cell-chain {
+      flex-direction: column;
+      gap: 0;
+    }
+    .cell .cell-chain-mark {
+      font-size: clamp(10px, 1.9vw, 15px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: 0.5px;
+    }
+    .cell .cell-coord {
+      font-size: clamp(7px, 1.1vw, 9px);
+      font-weight: 600;
+      line-height: 1;
+      opacity: 0.7;
+      margin-top: 1px;
+    }
+
+    /* Lock badge on tiles belonging to a safe (gone-public) chain */
+    .cell-safe::after {
+      content: '🔒';
+      position: absolute;
+      top: 0;
+      right: 1px;
+      font-size: 8px;
+      line-height: 1;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    /* Ring around the most recently placed tile (any player) */
+    .cell.last-move::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border: 2px solid #ffffff;
+      border-radius: 5px;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), 0 0 12px rgba(255, 255, 255, 0.65);
+      animation: lastMovePop 0.45s ease-out both;
+      pointer-events: none;
+      z-index: 1;
+    }
+    @keyframes lastMovePop {
+      0% { transform: scale(0.7); opacity: 0; }
+      60% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Merger sweep: captured tiles flash and settle into the survivor color,
+       staggered outward from the merger tile */
+    .cell.merger-flip {
+      animation: mergerFlip 0.55s ease-out both;
+    }
+    @keyframes mergerFlip {
+      0% { transform: scale(1); filter: brightness(2.4) saturate(0.2); }
+      55% { transform: scale(1.16); filter: brightness(1.4) saturate(0.8); }
+      100% { transform: scale(1); filter: none; }
+    }
 
     /* ====== TOUCH-OPTIMIZED BUTTONS ====== */
     button {
@@ -537,10 +615,6 @@
       background: var(--accent-primary);
       color: white;
       border-color: var(--accent-primary);
-    }
-      50% {
-        box-shadow: 0 0 0 3px #66bb6a, 0 0 16px rgba(76, 175, 80, 0.8);
-      }
     }
 
     /* ====== RESPONSIVE RACK ====== */
@@ -817,27 +891,147 @@
       cursor: not-allowed;
     }
 
-    /* TURN INDICATOR */
+    /* ====== EQUITY MARKET REDESIGN ====== */
+    .stock-row .chain-name {
+      font-weight: 700;
+    }
+    .stock-row .chain-price {
+      margin-left: auto;
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+    .stock-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin: 6px 0;
+    }
+    .stock-meta .meta-size {
+      white-space: nowrap;
+    }
+    .supply-bar {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .supply-fill {
+      height: 100%;
+      background: var(--accent-secondary);
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+    .supply-fill.low {
+      background: var(--accent-danger);
+    }
+    .supply-count {
+      white-space: nowrap;
+      color: var(--text-muted);
+    }
+    .owner-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 4px;
+      padding: 6px 8px;
+      background: var(--bg-secondary);
+      border-radius: 6px;
+    }
+    .owner-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .owner-bar .owner-name {
+      width: 58px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .owner-bar.me .owner-name {
+      font-weight: 800;
+      color: var(--accent-primary);
+    }
+    .owner-track {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .owner-fill {
+      height: 100%;
+      border-radius: 4px;
+      box-shadow: inset 0 0 3px rgba(0,0,0,0.25);
+      transition: width 0.4s ease;
+    }
+    .owner-count {
+      width: 36px;
+      text-align: right;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: var(--text-primary);
+    }
+    .owner-bars .no-owners {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    /* ====== MONEY FEEDBACK ====== */
+    #playersList .playerCard {
+      position: relative;
+    }
+    .money-float {
+      position: absolute;
+      right: 10px;
+      top: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+      animation: moneyFloat 1.1s ease-out forwards;
+      z-index: 2;
+    }
+    .money-float.gain { color: var(--accent-secondary); }
+    .money-float.loss { color: var(--accent-danger); }
+    @keyframes moneyFloat {
+      0% { opacity: 0; transform: translateY(8px); }
+      18% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-16px); }
+    }
+
+    /* TURN INDICATOR (theme-aware instead of hardcoded white/#333) */
     #turnIndicator {
       font-size: 18px;
-      font-weight: bold;
+      font-weight: 700;
+      letter-spacing: 0.2px;
       padding: 12px 16px;
-      border-radius: 6px;
-      background: #ffffff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 6px var(--shadow-color);
       margin-bottom: 12px;
       text-align: center;
-      color: #333;
+      color: var(--text-primary);
       transition: 0.3s ease;
     }
     #turnIndicator.ai-turn {
-      background: #1565c0;
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
       color: white;
-      box-shadow: 0 0 16px rgba(21,101,192,0.6);
+      box-shadow: 0 0 16px var(--shadow-color);
     }
     #gameStatus {
       font-size: 14px;
-      color: #666;
+      color: var(--text-secondary);
       text-align: center;
       margin-top: 6px;
     }
@@ -3822,6 +4016,10 @@
     let allPlayersStateBeforePlacement = null;  // For merger undo - all players
     let bankSharesBeforePlacement = null;       // For merger undo - bank shares
     let endGameReason = "";
+    let endGameAnnounced = false;  // "game will end after this turn" notice shown
+    let lastMoveCell = null;       // {r,c} of most recent placement, for board highlight
+    let mergerSweepInfo = null;    // one-shot {origin:{r,c}, cells:[{r,c}]} for merger animation
+    let displayedMoneyByIdx = {};  // last cash value shown per player, for count-up animation
     let logContainer = null;
     let pendingReplacementTile = null;
     
@@ -4127,6 +4325,10 @@
       allPlayersStateBeforePlacement = null;
       bankSharesBeforePlacement = null;
       endGameReason = "";
+      endGameAnnounced = false;
+      lastMoveCell = null;
+      mergerSweepInfo = null;
+      displayedMoneyByIdx = {};
       pendingReplacementTile = null;
       aiThoughts = [];
 
@@ -4374,7 +4576,7 @@
           }
           return { type: "newChain", tiles: group };
         }
-        return { type: "neutral" };
+        return { type: "neutral", r, c };
       }
 
       if (adjChains.size === 1) {
@@ -4385,7 +4587,7 @@
         return { type: "expand", chain: Array.from(adjChains)[0] };
       }
 
-      return { type: "neutral" };
+      return { type: "neutral", r, c };
     }
 
     function simulateNeutralGroup(sr, sc) {
@@ -4545,10 +4747,27 @@
 
     function renderBoard() {
       const boardDiv = document.getElementById('board');
-      boardDiv.innerHTML = ''; 
+      boardDiv.innerHTML = '';
 
       const p = players[currentPlayer];
       const playerTiles = (p && !p.isAI) ? new Set(p.tiles) : new Set();
+
+      // Precompute which chains are safe (one pass instead of per-cell scans)
+      const safeChains = new Set();
+      CHAINS.forEach(ch => { if (countChainTiles(ch) >= SAFE_SIZE) safeChains.add(ch); });
+
+      // One-shot merger sweep: stagger the flash outward from the merger tile
+      let sweepDelays = null;
+      if (mergerSweepInfo) {
+        sweepDelays = {};
+        mergerSweepInfo.cells.forEach(s => {
+          const d = Math.abs(s.r - mergerSweepInfo.origin.r) + Math.abs(s.c - mergerSweepInfo.origin.c);
+          sweepDelays[s.r + ',' + s.c] = d * 45;
+        });
+        mergerSweepInfo = null;
+      }
+
+      const lightChains = ['Scribble', 'Clickr', 'OmniCorp'];
 
       for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
@@ -4556,7 +4775,7 @@
           cell.className = 'cell';
           const coord = rcToCoord(r, c);
           cell.textContent = coord;
-          
+
           const val = board[r][c];
           if (val === null) {
             if (playerTiles.has(coord)) {
@@ -4567,10 +4786,28 @@
           } else if (CHAINS.includes(val)) {
             cell.classList.add('cell-chain');
             cell.style.background = CHAIN_COLORS[val];
+            if (lightChains.includes(val)) cell.style.color = '#222';
+            // Chain mark (company code) + small coordinate, so ownership is
+            // readable without relying on color alone
+            cell.innerHTML = `<span class="cell-chain-mark">${val.substring(0, 3).toUpperCase()}</span>` +
+                             `<span class="cell-coord">${coord}</span>`;
+            if (safeChains.has(val)) {
+              cell.classList.add('cell-safe');
+              cell.title = `${val} — gone public (safe from acquisition)`;
+            } else {
+              cell.title = val;
+            }
           }
 
           if (val !== null) {
             cell.classList.add('cell-occupied');
+            if (lastMoveCell && lastMoveCell.r === r && lastMoveCell.c === c) {
+              cell.classList.add('last-move');
+            }
+            if (sweepDelays && sweepDelays[r + ',' + c] !== undefined) {
+              cell.classList.add('merger-flip');
+              cell.style.animationDelay = sweepDelays[r + ',' + c] + 'ms';
+            }
           }
 
           // Support both mouse and touch events
@@ -4594,6 +4831,7 @@
 
     function handleCellHover(r, c, cell) {
       if (gameOver) return;
+      if (!gameSettings.showHints) return;  // "Show Tile Hints" setting
       const p = players[currentPlayer];
       if (!p || p.isAI) return;
       if (!selectedTile) return;
@@ -4674,10 +4912,23 @@
       });
     }
 
+    // Animated count-up for cash changes on player cards
+    function animateMoney(el, from, to) {
+      const DUR = 600;
+      const start = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+      function tick(now) {
+        const t = Math.min(1, ((now || Date.now()) - start) / DUR);
+        const ease = 1 - Math.pow(1 - t, 3);
+        el.textContent = '$' + Math.round(from + (to - from) * ease).toLocaleString();
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
     function renderPlayers() {
       const list = document.getElementById('playersList');
       list.innerHTML = '';
-      if (!players) return; 
+      if (!players) return;
 
       players.forEach((p, idx) => {
         const card = document.createElement('div');
@@ -4688,7 +4939,7 @@
 
         const nameDiv = document.createElement('div');
         nameDiv.className = 'player-name';
-        
+
         // Show personality icon for AI players
         if (p.isAI && p.personalityData) {
           nameDiv.textContent = `${p.personalityData.icon} ${p.name}`;
@@ -4700,6 +4951,21 @@
         const moneyDiv = document.createElement('div');
         moneyDiv.className = 'player-money';
         moneyDiv.textContent = `$${p.money.toLocaleString()}`;
+
+        // Money feedback: count up/down + floating delta when cash changes
+        const prevMoney = displayedMoneyByIdx[idx];
+        if (prevMoney !== undefined && prevMoney !== p.money) {
+          moneyDiv.textContent = `$${prevMoney.toLocaleString()}`;
+          animateMoney(moneyDiv, prevMoney, p.money);
+
+          const delta = p.money - prevMoney;
+          const float = document.createElement('span');
+          float.className = 'money-float ' + (delta > 0 ? 'gain' : 'loss');
+          float.textContent = (delta > 0 ? '+' : '−') + '$' + Math.abs(delta).toLocaleString();
+          card.appendChild(float);
+          setTimeout(() => float.remove(), 1200);
+        }
+        displayedMoneyByIdx[idx] = p.money;
 
         card.appendChild(nameDiv);
         card.appendChild(moneyDiv);
@@ -4779,58 +5045,51 @@
       }
 
       const p = players[currentPlayer];
-      const canBuy = !p.isAI && tilePlacedThisTurn && buysRemaining > 0;
+      // Official rule: you may still buy shares on a turn where you have no
+      // playable tile (you just skip the placement step).
+      const mayBuyPhase = tilePlacedThisTurn || !hasLegalMove(p);
+      const canBuy = !p.isAI && mayBuyPhase && buysRemaining > 0 && !gameOver;
 
       active.forEach(ch => {
         const row = document.createElement('div');
         row.className = 'stock-row';
 
-        const header = document.createElement('div');
-        header.className = 'chain-header';
-
-        const badge = document.createElement('span');
-        badge.className = 'chain-badge';
-        badge.style.background = CHAIN_COLORS[ch];
-
-        const chainName = document.createElement('span');
-        chainName.textContent = ch;
-
         const tier = CHAIN_TIERS[ch];
-        const tierBadge = document.createElement('span');
-        tierBadge.className = `tier-badge tier-${tier}`;
-        tierBadge.textContent = tier.toUpperCase();
-
-        header.appendChild(badge);
-        header.appendChild(chainName);
-        header.appendChild(tierBadge);
-
         const size = countChainTiles(ch);
-        if (isChainSafe(ch)) {
-          const safeBadge = document.createElement('span');
-          safeBadge.className = 'safe-indicator';
-          safeBadge.textContent = 'IPO'; 
-          header.appendChild(safeBadge);
-        }
-
-        const info = document.createElement('div');
-        info.className = 'stock-info';
         const price = getChainPrice(ch);
         const available = bankShares[ch] || 0;
-        info.innerHTML = `Size: ${size} | Price: $${price} | Available Equity: ${available}`;
+        const safe = isChainSafe(ch);
 
+        // Header: color chip · name · tier · IPO lock · price
+        const header = document.createElement('div');
+        header.className = 'chain-header';
+        header.innerHTML =
+          `<span class="chain-badge" style="background: ${CHAIN_COLORS[ch]}"></span>` +
+          `<span class="chain-name">${ch}</span>` +
+          `<span class="tier-badge tier-${tier}">${tier.toUpperCase()}</span>` +
+          (safe ? `<span class="safe-indicator">🔒 IPO</span>` : '') +
+          `<span class="chain-price">$${price.toLocaleString()}</span>`;
         row.appendChild(header);
-        row.appendChild(info);
 
+        // Meta: chain size + bank supply depletion bar
+        const meta = document.createElement('div');
+        meta.className = 'stock-meta';
+        const supplyPct = Math.max(0, Math.min(100, (available / MAX_SHARES) * 100));
+        meta.innerHTML =
+          `<span class="meta-size">Size <strong>${size}</strong></span>` +
+          `<div class="supply-bar" title="${available} of ${MAX_SHARES} shares left in the bank">` +
+            `<div class="supply-fill${available <= 5 ? ' low' : ''}" style="width: ${supplyPct}%"></div>` +
+          `</div>` +
+          `<span class="supply-count">${available} left</span>`;
+        row.appendChild(meta);
+
+        // Ownership bars: one per shareholder (★ majority / ◆ minority)
         const ownersDiv = document.createElement('div');
-        ownersDiv.style.fontSize = '11px';
-        ownersDiv.style.marginTop = '6px';
-        ownersDiv.style.padding = '6px';
-        ownersDiv.style.background = 'var(--bg-secondary)';
-        ownersDiv.style.borderRadius = '4px';
-        
+        ownersDiv.className = 'owner-bars';
+
         const shareholders = players
-          .map((player, idx) => ({ 
-            name: player.name, 
+          .map((player, idx) => ({
+            name: player.name,
             shares: player.shares[ch] || 0,
             idx: idx
           }))
@@ -4838,14 +5097,22 @@
           .sort((a, b) => b.shares - a.shares);
 
         if (shareholders.length > 0) {
-          const sharesText = shareholders.map(s => 
-            `<span style="${s.idx === currentPlayer ? 'font-weight: bold; color: var(--accent-primary);' : ''}">${s.name}: ${s.shares}</span>`
-          ).join(' | ');
-          ownersDiv.innerHTML = `<strong>Shareholders:</strong> ${sharesText}`;
+          ownersDiv.innerHTML = shareholders.map(s => {
+            const pos = getSharePosition(ch, players[s.idx]);
+            let mark = '';
+            if (pos === 'majority' || pos === 'tied-majority') mark = ' ★';
+            else if (pos === 'minority' || pos === 'tied-minority') mark = ' ◆';
+            const pct = Math.max(4, (s.shares / MAX_SHARES) * 100);
+            return `<div class="owner-bar${s.idx === currentPlayer ? ' me' : ''}" title="${s.name}: ${s.shares} shares (${pos.replace('-', ' ')})">` +
+              `<span class="owner-name">${s.name}</span>` +
+              `<div class="owner-track"><div class="owner-fill" style="width: ${pct}%; background: ${CHAIN_COLORS[ch]}"></div></div>` +
+              `<span class="owner-count">${s.shares}${mark}</span>` +
+            `</div>`;
+          }).join('');
         } else {
-          ownersDiv.innerHTML = '<em style="color: var(--text-muted);">No shareholders yet</em>';
+          ownersDiv.innerHTML = '<em class="no-owners">No shareholders yet</em>';
         }
-        
+
         row.appendChild(ownersDiv);
 
         if (canBuy && available > 0) {
@@ -4910,7 +5177,7 @@
         if (tilePlacedThisTurn) {
           statusDiv.textContent = 'Buy equity or End Turn';
         } else if (allUnplayable) {
-          statusDiv.textContent = '⚠️ No playable tiles! Click End Turn to swap.';
+          statusDiv.textContent = '⚠️ No playable tiles! You may still buy equity, then End Turn to swap.';
           statusDiv.style.color = 'var(--accent-danger)';
         } else if (!selectedTile) {
           statusDiv.textContent = 'Place a tile';
@@ -5008,7 +5275,8 @@
       p.tiles.splice(idx, 1);
       selectedTile = null;
       board[r][c] = "X";
-      tilePlacedThisTurn = true; 
+      tilePlacedThisTurn = true;
+      lastMoveCell = { r, c };  // board highlight for the most recent move
       
       // Play tile placement sound
       playSound('place');
@@ -5026,8 +5294,16 @@
         handleNewChainCreation(r, c, result.tiles);
         return { status: p.isAI ? 'ok' : 'chain_pending' }; 
       } else if (result.type === "merger") {
+        // Mergers are binding. Undo used to stay enabled after a merger fully
+        // resolved, letting the player watch every bonus payout and AI
+        // disposal decision, then rewind and replay with perfect information.
+        lastPlacedTile = null;
+        boardBeforePlacement = null;
+        playerStateBeforePlacement = null;
+        allPlayersStateBeforePlacement = null;
+        bankSharesBeforePlacement = null;
         handleMerger(r, c, result.chains);
-        return { status: 'merger_pending' }; 
+        return { status: 'merger_pending' };
       } else {
         if (result.type === "expand") {
           log(`${result.chain} has expanded.`, 'system');
@@ -5098,7 +5374,9 @@
       playerStateBeforePlacement = null;
       allPlayersStateBeforePlacement = null;
       bankSharesBeforePlacement = null;
-      
+      endGameAnnounced = false;  // re-announce if a trigger still holds
+      lastMoveCell = null;
+
       renderAll();
       log(`Funding at ${undoneCoord} has been undone.`, 'player');
     }
@@ -5280,23 +5558,11 @@
       // Play merger sound
       playSound('merger');
       
-      // Track merger for achievements
+      // Track merger for achievements (perfect-merger check happens in
+      // completeMerger, once the actual survivor is known)
       const triggeringPlayer = players[currentPlayer];
       if (!triggeringPlayer.isAI) {
           gameStats.mergersTriggered = (gameStats.mergersTriggered || 0) + 1;
-          
-          // Check for perfect merger (majority + minority in defunct)
-          const defunct = chains.slice(1); // Assuming first is survivor
-          let hasMajority = false;
-          let hasMinority = false;
-          defunct.forEach(ch => {
-              const pos = getSharePosition(ch, triggeringPlayer);
-              if (pos === 'majority') hasMajority = true;
-              if (pos === 'minority') hasMinority = true;
-          });
-          if (hasMajority && hasMinority) {
-              gameStats.perfectMerger = true;
-          }
       }
       
       // Record for replay
@@ -5420,6 +5686,21 @@
       const defunct = chains.filter(ch => ch !== survivor);
       log(`Acquisition confirmed: ${survivor} (acquirer) absorbs ${defunct.join(', ')}.`, 'system');
 
+      // Perfect-merger achievement: majority + minority across the ACTUAL
+      // defunct chains (the old check guessed chains[0] was the survivor)
+      const mergerMaker = players[currentPlayer];
+      if (!mergerMaker.isAI) {
+        let hasMajority = false, hasMinority = false;
+        defunct.forEach(ch => {
+          const pos = getSharePosition(ch, mergerMaker);
+          if (pos === 'majority') hasMajority = true;
+          if (pos === 'minority') hasMinority = true;
+        });
+        if (hasMajority && hasMinority) {
+          gameStats.perfectMerger = true;
+        }
+      }
+
       const defunctPrices = {};
       const defunctBonuses = {};
       defunct.forEach(ch => {
@@ -5434,9 +5715,14 @@
         payMergerBonuses(ch);
       });
 
+      // Collect every cell that's about to change color so renderBoard can
+      // animate the takeover sweeping outward from the merger tile
+      const sweepCells = [];
+
       const group = floodNeutralGroup(r, c);
       group.forEach(g => {
         board[g.r][g.c] = survivor;
+        sweepCells.push({ r: g.r, c: g.c });
       });
 
       defunct.forEach(ch => {
@@ -5444,10 +5730,13 @@
           for (let cc = 0; cc < COLS; cc++) {
             if (board[rr][cc] === ch) {
               board[rr][cc] = survivor;
+              sweepCells.push({ r: rr, c: cc });
             }
           }
         }
       });
+
+      mergerSweepInfo = { origin: { r, c }, cells: sweepCells };
 
       mergerState = {
         survivor: survivor,
@@ -5464,60 +5753,91 @@
       showMergerAnnouncement(survivor, defunct);
     }
 
-    function payMergerBonuses(chain) {
-      log(`Calculating bonuses for acquired company: ${chain}...`, 'system');
+    // ====== SHARED BONUS PAYOUT LOGIC ======
+    // Single source of truth for merger AND final-liquidation bonuses.
+    // (This logic used to be duplicated in three places.)
+    // Official Acquire rules:
+    //  - A sole shareholder receives BOTH the majority and minority bonuses.
+    //  - Tie for majority: majority + minority combined, split evenly,
+    //    rounded UP to the nearest $100. No minority bonus is paid.
+    //  - Tie for minority: minority split evenly, rounded UP to nearest $100.
+    function roundUpTo100(x) {
+      return Math.ceil(x / 100) * 100;
+    }
+
+    function computeBonusPayouts(chain, price) {
+      const majorityBonus = price * 10;
+      const minorityBonus = price * 5;
+      const payouts = [];
+
       const shareholders = players.map((p, idx) => ({
         idx,
         name: p.name,
         shares: p.shares[chain] || 0
       })).filter(x => x.shares > 0);
 
-      if (shareholders.length === 0) {
+      if (shareholders.length === 0) return payouts;
+      shareholders.sort((a, b) => b.shares - a.shares);
+
+      if (shareholders.length === 1) {
+        // Sole shareholder collects both bonuses (official rule)
+        payouts.push({
+          playerIdx: shareholders[0].idx,
+          name: shareholders[0].name,
+          shares: shareholders[0].shares,
+          bonus: majorityBonus + minorityBonus,
+          type: "Majority + Minority"
+        });
+        return payouts;
+      }
+
+      const topShare = shareholders[0].shares;
+      const topHolders = shareholders.filter(s => s.shares === topShare);
+
+      if (topHolders.length > 1) {
+        const split = roundUpTo100((majorityBonus + minorityBonus) / topHolders.length);
+        topHolders.forEach(s => {
+          payouts.push({ playerIdx: s.idx, name: s.name, shares: s.shares, bonus: split, type: "Split Majority" });
+        });
+        return payouts;
+      }
+
+      payouts.push({
+        playerIdx: shareholders[0].idx,
+        name: shareholders[0].name,
+        shares: shareholders[0].shares,
+        bonus: majorityBonus,
+        type: "Majority"
+      });
+
+      const secondShare = shareholders[1].shares;
+      const secondHolders = shareholders.filter(s => s.shares === secondShare);
+      const split = roundUpTo100(minorityBonus / secondHolders.length);
+      secondHolders.forEach(s => {
+        payouts.push({
+          playerIdx: s.idx,
+          name: s.name,
+          shares: s.shares,
+          bonus: split,
+          type: secondHolders.length > 1 ? "Split Minority" : "Minority"
+        });
+      });
+      return payouts;
+    }
+
+    function payMergerBonuses(chain) {
+      log(`Calculating bonuses for acquired company: ${chain}...`, 'system');
+      const payouts = computeBonusPayouts(chain, getChainPrice(chain));
+
+      if (payouts.length === 0) {
         log(`No shareholders for ${chain}. No bonuses paid.`, 'system');
         return;
       }
 
-      shareholders.sort((a, b) => b.shares - a.shares);
-
-      const majorityBonus = getMajorityBonus(chain);
-      const minorityBonus = getMinorityBonus(chain);
-
-      if (shareholders.length === 1) {
-        // Only pay majority bonus when there's a single shareholder
-        // Minority bonus requires at least 2 shareholders
-        players[shareholders[0].idx].money += majorityBonus;
-        log(`${shareholders[0].name} receives $${majorityBonus.toLocaleString()} (Majority only) for ${chain}.`, 'system');
-      } else {
-        const topShare = shareholders[0].shares;
-        const topHolders = shareholders.filter(s => s.shares === topShare);
-
-        if (topHolders.length > 1) {
-          const split = Math.floor((majorityBonus + minorityBonus) / topHolders.length);
-          log(`Tie for ${chain} majority: ${topHolders.map(s => s.name).join(', ')}.`, 'system');
-          topHolders.forEach(s => {
-            players[s.idx].money += split;
-            log(`${s.name} receives $${split.toLocaleString()} (Split bonus).`, 'system');
-          });
-        } else {
-          players[shareholders[0].idx].money += majorityBonus;
-          log(`${shareholders[0].name} receives $${majorityBonus.toLocaleString()} (Majority) for ${chain}.`, 'system');
-
-          if (shareholders.length > 1) {
-            const secondShare = shareholders[1].shares;
-            const secondHolders = shareholders.filter(s => s.shares === secondShare);
-            const split = Math.floor(minorityBonus / secondHolders.length);
-            
-            if (secondHolders.length > 1) {
-              log(`Tie for ${chain} minority: ${secondHolders.map(s => s.name).join(', ')}.`, 'system');
-            }
-            
-            secondHolders.forEach(s => {
-              players[s.idx].money += split;
-              log(`${s.name} receives $${split.toLocaleString()} (Minority).`, 'system');
-            });
-          }
-        }
-      }
+      payouts.forEach(b => {
+        players[b.playerIdx].money += b.bonus;
+        log(`${b.name} receives $${b.bonus.toLocaleString()} (${b.type}) for ${chain}.`, 'system');
+      });
     }
 
     function showMergerAnnouncement(survivor, defunct) {
@@ -5536,13 +5856,11 @@
       let html = `<div style="color: var(--text-primary);">${coloredName(survivor)} (Acquirer) has absorbed: ${defunct.map(ch => coloredName(ch)).join(' ')}</div><br>`;
       
       defunct.forEach(ch => {
-        const shareholders = players.map((p, idx) => ({
-          idx,
-          name: p.name,
-          shares: p.shares[ch] || 0
-        })).filter(x => x.shares > 0);
+        // Display EXACTLY what payMergerBonuses paid, via the same shared
+        // payout function (the display logic used to be a hand-kept copy).
+        const payouts = computeBonusPayouts(ch, mergerState.defunctPrices[ch]);
 
-        if (shareholders.length === 0) {
+        if (payouts.length === 0) {
           html += `<div style="margin: 10px 0; padding: 10px; background: var(--bg-secondary); border-radius: 6px; border-left: 4px solid ${CHAIN_COLORS[ch]}; color: var(--text-primary);">`;
           html += `${coloredName(ch)}<br>`;
           html += `<em style="color: var(--text-muted);">No shareholders</em>`;
@@ -5550,45 +5868,13 @@
           return;
         }
 
-        shareholders.sort((a, b) => b.shares - a.shares);
-        const majorityBonus = mergerState.defunctBonuses[ch].majority;
-        const minorityBonus = mergerState.defunctBonuses[ch].minority;
-
         html += `<div style="margin: 10px 0; padding: 10px; background: var(--bg-secondary); border-radius: 6px; border-left: 4px solid ${CHAIN_COLORS[ch]}; color: var(--text-primary);">`;
         html += `${coloredName(ch)} <span style="color: var(--text-secondary);">Bonuses (Paid):</span><br>`;
 
-        if (shareholders.length === 1) {
-          // Only pay majority bonus when there's a single shareholder
-          html += `🥇 <strong>${shareholders[0].name}</strong> - ${shareholders[0].shares} shares - $${majorityBonus.toLocaleString()} (Majority only)<br>`;
-        } else {
-          const topShare = shareholders[0].shares;
-          const topHolders = shareholders.filter(s => s.shares === topShare);
-
-          if (topHolders.length > 1) {
-            const split = Math.floor((majorityBonus + minorityBonus) / topHolders.length);
-            html += `🥇 <strong>Tied for Majority</strong> (split $${(majorityBonus + minorityBonus).toLocaleString()}):<br>`;
-            topHolders.forEach(s => {
-              html += `&nbsp;&nbsp;• ${s.name} - ${s.shares} shares - $${split.toLocaleString()}<br>`;
-            });
-          } else {
-            html += `🥇 <strong>${shareholders[0].name}</strong> - ${shareholders[0].shares} shares - $${majorityBonus.toLocaleString()} (Majority)<br>`;
-
-            if (shareholders.length > 1) {
-              const secondShare = shareholders[1].shares;
-              const secondHolders = shareholders.filter(s => s.shares === secondShare);
-              
-              if (secondHolders.length > 1) {
-                const split = Math.floor(minorityBonus / secondHolders.length);
-                html += `🥈 <strong>Tied for Minority</strong> (split $${minorityBonus.toLocaleString()}):<br>`;
-                secondHolders.forEach(s => {
-                  html += `&nbsp;&nbsp;• ${s.name} - ${s.shares} shares - $${split.toLocaleString()}<br>`;
-                });
-              } else {
-                html += `🥈 <strong>${shareholders[1].name}</strong> - ${shareholders[1].shares} shares - $${minorityBonus.toLocaleString()} (Minority)<br>`;
-              }
-            }
-          }
-        }
+        payouts.forEach(b => {
+          const medal = b.type.indexOf('Majority') !== -1 ? '🥇' : '🥈';
+          html += `${medal} <strong>${b.name}</strong> - ${b.shares} shares - $${b.bonus.toLocaleString()} (${b.type})<br>`;
+        });
         html += `</div>`;
       });
 
@@ -5781,22 +6067,43 @@
 
     function confirmStockDisposal() {
       const p = players[mergerState.playerIndex];
+
+      // ---- PASS 1: collect and validate EVERYTHING before applying anything.
+      // (Typed input can bypass the <input max>, and multiple defunct chains
+      // each trade into the same survivor pool, so we must validate the
+      // combined trade total against the bank.)
+      const disposals = [];
+      let totalTradePairs = 0;
       let valid = true;
-      
+
       mergerState.defunct.forEach(ch => {
         const sharesOwned = p.shares[ch] || 0;
         if (sharesOwned === 0) return;
-        
-        const trade = parseInt(document.getElementById(`trade-${ch}`).value) || 0;
-        const sell = parseInt(document.getElementById(`sell-${ch}`).value) || 0;
+
+        const trade = Math.max(0, parseInt(document.getElementById(`trade-${ch}`).value) || 0);
+        const sell = Math.max(0, parseInt(document.getElementById(`sell-${ch}`).value) || 0);
         const used = (trade * 2) + sell;
-        
+
         if (used > sharesOwned) {
           valid = false;
           log(`Error: You're trying to dispose of more ${ch} shares than you own!`, "error");
           return;
         }
-        
+
+        totalTradePairs += trade;
+        disposals.push({ ch, trade, sell, sharesOwned, used });
+      });
+
+      const survivorBank = bankShares[mergerState.survivor] || 0;
+      if (totalTradePairs > survivorBank) {
+        valid = false;
+        log(`Error: Only ${survivorBank} ${mergerState.survivor} share(s) remain in the bank — you can't trade for ${totalTradePairs}.`, "error");
+      }
+
+      if (!valid) return;
+
+      // ---- PASS 2: apply the validated disposals.
+      disposals.forEach(({ ch, trade, sell, sharesOwned, used }) => {
         if (trade > 0) {
           p.shares[ch] -= trade * 2;
           p.shares[mergerState.survivor] += trade;
@@ -5804,7 +6111,7 @@
           bankShares[ch] += trade * 2;
           log(`You traded ${trade * 2} ${ch} for ${trade} ${mergerState.survivor}.`, 'player');
         }
-        
+
         if (sell > 0) {
           const price = mergerState.defunctPrices[ch];
           const cash = sell * price;
@@ -5813,14 +6120,12 @@
           bankShares[ch] += sell;
           log(`You sold ${sell} ${ch} for $${cash.toLocaleString()}.`, 'player');
         }
-        
+
         const kept = sharesOwned - used;
         if (kept > 0) {
           log(`You kept ${kept} ${ch} equity.`, 'player');
         }
       });
-      
-      if (!valid) return;
       
       document.getElementById('stockDisposalBackdrop').style.display = 'none';
       // Move to next player (wrap around)
@@ -5886,7 +6191,7 @@
         log("All your tiles are unplayable this turn - swapping tiles.", "warning");
       }
 
-      if (buysRemaining === MAX_BUYS_PER_TURN && tilePlacedThisTurn) {
+      if (gameSettings.confirmEndTurn && buysRemaining === MAX_BUYS_PER_TURN && tilePlacedThisTurn) {
         const active = allActiveChains();
         const hasAvailableStock = active.some(ch => {
           const price = getChainPrice(ch);
@@ -5952,10 +6257,17 @@
         pendingReplacementTile = null;
       }
 
+      // Count completed turns (human AND AI) for stats/achievements
+      gameStats.turnsPlayed++;
+
+      // Official rule: the game ends at the END of the turn that triggered it,
+      // so the triggering player keeps their buy phase.
+      if (finishGameIfTriggered()) return;
+
       currentPlayer = (currentPlayer + 1) % players.length;
       buysRemaining = MAX_BUYS_PER_TURN;
       selectedTile = null;
-      tilePlacedThisTurn = false; 
+      tilePlacedThisTurn = false;
       
       lastPlacedTile = null;
       boardBeforePlacement = null;
@@ -6397,18 +6709,21 @@
         
         setTimeout(() => {
             tilePlacedThisTurn = false;
-            gameStats.turnsPlayed++;
-            
+            // (turnsPlayed is now counted once per completed turn, in the
+            // end-of-turn paths, so human turns count too.)
+
             // Check for comeback tracking at midpoint
             const totalTiles = ROWS * COLS;
             const tilesPlayed = totalTiles - deck.length;
             if (tilesPlayed === Math.floor(totalTiles / 2)) {
                 const humanPlayer = players.find(pl => !pl.isAI);
-                const humanWorth = calculateNetWorthWithBonuses(humanPlayer);
-                const allWorths = players.map(pl => calculateNetWorthWithBonuses(pl));
-                const minWorth = Math.min(...allWorths);
-                if (humanWorth === minWorth) {
-                    gameStats.wasLastAtMidpoint = true;
+                if (humanPlayer) {
+                    const humanWorth = calculateNetWorthWithBonuses(humanPlayer);
+                    const allWorths = players.map(pl => calculateNetWorthWithBonuses(pl));
+                    const minWorth = Math.min(...allWorths);
+                    if (humanWorth === minWorth) {
+                        gameStats.wasLastAtMidpoint = true;
+                    }
                 }
             }
             
@@ -6538,9 +6853,9 @@
                 log(`${p.name} has no legal moves.`, 'ai');
                 runAIBuyAndEnd();
             }
-        }, AI_THINK_TIME);
+        }, gameSettings.aiSpeed || AI_THINK_TIME);
     }
-    
+
     // ===== NEW: Evaluate if AI should buy shares before placing a merger tile =====
     function evaluatePreMergerBuying(player, threat) {
         const buys = [];
@@ -6684,8 +6999,10 @@
     function evaluateTileDenialValue(typeResult, humanPlayer, me) {
         let denialValue = 0;
         
-        // Check if this placement blocks a potential human chain founding
-        if (typeResult.type === 'isolated' || typeResult.type === 'neutral') {
+        // Check if this placement blocks a potential human chain founding.
+        // (getPlacementType returns 'neutral', never 'isolated' — the old
+        // check was dead code and 'neutral' results had no r/c.)
+        if (typeResult.type === 'neutral' && typeResult.r !== undefined) {
             const { r, c } = typeResult;
             // Check if this tile is adjacent to neutrals that human might want
             const adjNeutrals = neighbors(r, c).filter(n => board[n.r][n.c] === 'X').length;
@@ -6985,7 +7302,8 @@
                 }
                 
                 // Block chain founding opportunities for human
-                if (diffSettings.chainBlockingEnabled && typeResult.type === 'isolated') {
+                // (was checking the nonexistent 'isolated' type — dead code)
+                if (diffSettings.chainBlockingEnabled && typeResult.type === 'neutral' && typeResult.r !== undefined) {
                     // Check if this tile is adjacent to another neutral tile
                     const { r, c } = typeResult;
                     const adjNeutrals = neighbors(r, c).filter(n => board[n.r][n.c] === 'X').length;
@@ -7081,10 +7399,12 @@
         const p = players[currentPlayer];
         if (!p || !p.isAI || gameOver) return;
 
-        const thinkTime = tilePlacedThisTurn ? AI_THINK_TIME / 2 : 100;
+        const thinkTime = tilePlacedThisTurn ? (gameSettings.aiSpeed || AI_THINK_TIME) / 2 : 100;
 
         setTimeout(() => {
-            if (tilePlacedThisTurn && buysRemaining > 0) {
+            // Official rule: a player with no playable tile still gets a buy phase.
+            const mayBuyPhase = tilePlacedThisTurn || !hasLegalMove(p);
+            if (mayBuyPhase && buysRemaining > 0) {
                 const active = allActiveChains();
                 if (active.length > 0) {
                     let sharesBought = [];
@@ -7382,9 +7702,17 @@
                     pendingReplacementTile = null;
                 }
 
+                // Count completed turns (human AND AI) for stats/achievements
+                gameStats.turnsPlayed++;
+
+                // Game ends at end-of-turn so the triggering player keeps
+                // their buy phase (official rule)
+                if (finishGameIfTriggered()) return;
+
                 currentPlayer = (currentPlayer + 1) % players.length;
                 buysRemaining = MAX_BUYS_PER_TURN;
                 tilePlacedThisTurn = false;
+                autoSave();
                 renderAll();
                 checkAITurn();
             }
@@ -7394,37 +7722,50 @@
 
 
     // ====== END GAME ======
-    function checkEndGame() {
-      if (gameOver) return; 
-
+    // Returns the end-of-game reason if a trigger condition currently holds,
+    // otherwise null. Does NOT end the game.
+    function endgameConditionMet() {
       const active = allActiveChains();
       for (const ch of active) {
         const size = countChainTiles(ch);
         if (size >= ENDGAME_SIZE) {
-          gameOver = true;
-          endGameReason = `${ch} has reached a size of ${size} (41+ triggers game end)`;
-          log(`Game Over: ${endGameReason}`, 'system');
-          startEndgameSequence(); 
-          return;
+          return `${ch} has reached a size of ${size} (41+ triggers game end)`;
         }
       }
 
       if (active.length > 0 && active.every(ch => isChainSafe(ch))) {
-        gameOver = true;
-        const chainList = active.join(', ');
-        endGameReason = `All active companies have gone public (IPO): ${chainList}`;
-        log(`Game Over: ${endGameReason}`, 'system');
-        startEndgameSequence(); 
-        return;
+        return `All active companies have gone public (IPO): ${active.join(', ')}`;
       }
 
       if (deck.length === 0 && players.every(p => !hasLegalMove(p))) {
-        gameOver = true;
-        endGameReason = "The tile deck is empty and no players have legal moves";
-        log(`Game Over: ${endGameReason}`, 'system');
-        startEndgameSequence(); 
-        return;
+        return "The tile deck is empty and no players have legal moves";
       }
+
+      return null;
+    }
+
+    // Announce-only: per official Acquire, the player whose move triggers the
+    // end condition still finishes their turn (including the buy phase). The
+    // game actually ends at end-of-turn via finishGameIfTriggered().
+    function checkEndGame() {
+      if (gameOver) return;
+      const reason = endgameConditionMet();
+      if (reason && !endGameAnnounced) {
+        endGameAnnounced = true;
+        log(`${reason} — the game will end when this turn is complete.`, 'system');
+      }
+    }
+
+    // Called at the end of each player's turn. Returns true if the game ended.
+    function finishGameIfTriggered() {
+      if (gameOver) return true;
+      const reason = endgameConditionMet();
+      if (!reason) return false;
+      gameOver = true;
+      endGameReason = reason;
+      log(`Game Over: ${endGameReason}`, 'system');
+      startEndgameSequence();
+      return true;
     }
 
     function startEndgameSequence() {
@@ -7604,66 +7945,8 @@
     }
 
     function calculateFinalBonuses(chain) {
-      const bonusPayouts = [];
-      const shareholders = players.map((p, idx) => ({
-        idx,
-        name: p.name,
-        shares: p.shares[chain] || 0,
-        isAI: p.isAI
-      })).filter(x => x.shares > 0);
-
-      if (shareholders.length === 0) return bonusPayouts; 
-
-      shareholders.sort((a, b) => b.shares - a.shares);
-
-      const majorityBonus = getMajorityBonus(chain);
-      const minorityBonus = getMinorityBonus(chain);
-
-      if (shareholders.length === 1) {
-        // Only pay majority bonus when there's a single shareholder
-        // Minority bonus requires at least 2 shareholders
-        bonusPayouts.push({
-          playerIdx: shareholders[0].idx,
-          bonus: majorityBonus,
-          type: "Majority only"
-        });
-        return bonusPayouts;
-      }
-
-      const topShare = shareholders[0].shares;
-      const topHolders = shareholders.filter(s => s.shares === topShare);
-
-      if (topHolders.length > 1) {
-        const split = Math.floor((majorityBonus + minorityBonus) / topHolders.length);
-        topHolders.forEach(s => {
-          bonusPayouts.push({
-            playerIdx: s.idx,
-            bonus: split,
-            type: "Split Bonus"
-          });
-        });
-      } else {
-        bonusPayouts.push({
-          playerIdx: shareholders[0].idx,
-          bonus: majorityBonus,
-          type: "Majority"
-        });
-
-        if (shareholders.length > 1) {
-          const secondShare = shareholders[1].shares;
-          const secondHolders = shareholders.filter(s => s.shares === secondShare);
-          const split = Math.floor(minorityBonus / secondHolders.length);
-          
-          secondHolders.forEach(s => {
-            bonusPayouts.push({
-              playerIdx: s.idx,
-              bonus: split,
-              type: "Minority"
-            });
-          });
-        }
-      }
-      return bonusPayouts;
+      // Same shared payout logic as mergers (official Acquire rules).
+      return computeBonusPayouts(chain, getChainPrice(chain));
     }
 
     function closeTallyModal() {
@@ -7675,78 +7958,84 @@
     }
 
     // ====== SAVE/LOAD GAME ======
+    // Single serializer used by BOTH manual save and autosave so the two
+    // can never drift apart (autosave previously wrote an old schema with
+    // no difficulty or stats, silently resetting them on load).
+    function buildSaveState() {
+      // Deep copy the board
+      var boardCopy = [];
+      for (var r = 0; r < board.length; r++) {
+        boardCopy.push(board[r].slice());
+      }
+
+      // Deep copy deck
+      var deckCopy = deck.slice();
+
+      // Deep copy bank shares
+      var bankSharesCopy = {};
+      for (var i = 0; i < CHAINS.length; i++) {
+        var ch = CHAINS[i];
+        bankSharesCopy[ch] = bankShares[ch] || 0;
+      }
+
+      // Deep copy players
+      var playersCopy = [];
+      for (var j = 0; j < players.length; j++) {
+        var p = players[j];
+        var sharesCopy = {};
+        for (var k = 0; k < CHAINS.length; k++) {
+          var ch2 = CHAINS[k];
+          sharesCopy[ch2] = (p.shares && p.shares[ch2]) ? p.shares[ch2] : 0;
+        }
+        playersCopy.push({
+          name: p.name,
+          money: p.money,
+          tiles: p.tiles.slice(),
+          shares: sharesCopy,
+          isAI: p.isAI,
+          personality: p.personality || null
+        });
+      }
+
+      return {
+        board: boardCopy,
+        deck: deckCopy,
+        players: playersCopy,
+        currentPlayer: currentPlayer,
+        buysRemaining: buysRemaining,
+        bankShares: bankSharesCopy,
+        tilePlacedThisTurn: tilePlacedThisTurn,
+        currentDifficulty: currentDifficulty,
+        gameStats: {
+          turnsPlayed: gameStats.turnsPlayed || 0,
+          mergersTriggered: gameStats.mergersTriggered || 0,
+          maxSharesInChain: gameStats.maxSharesInChain || 0,
+          chainsOwnedAtOnce: gameStats.chainsOwnedAtOnce || 0,
+          chainsFounded: gameStats.chainsFounded || 0,
+          totalBonuses: gameStats.totalBonuses || 0,
+          wasLastAtMidpoint: gameStats.wasLastAtMidpoint || false,
+          difficulty: gameStats.difficulty || currentDifficulty
+        },
+        timestamp: new Date().toISOString(),
+        version: '2.2'
+      };
+    }
+
     function saveGame() {
-      
-      
+
+
       if (gameOver) {
         alert('Cannot save a completed game. Start a new game to save.');
         return;
       }
-      
+
       if (!board || !players || players.length === 0) {
         alert('No game in progress to save.');
         return;
       }
-      
+
       try {
-        // Deep copy the board
-        var boardCopy = [];
-        for (var r = 0; r < board.length; r++) {
-          boardCopy.push(board[r].slice());
-        }
-        
-        // Deep copy deck
-        var deckCopy = deck.slice();
-        
-        // Deep copy bank shares
-        var bankSharesCopy = {};
-        for (var i = 0; i < CHAINS.length; i++) {
-          var ch = CHAINS[i];
-          bankSharesCopy[ch] = bankShares[ch] || 0;
-        }
-        
-        // Deep copy players
-        var playersCopy = [];
-        for (var j = 0; j < players.length; j++) {
-          var p = players[j];
-          var sharesCopy = {};
-          for (var k = 0; k < CHAINS.length; k++) {
-            var ch2 = CHAINS[k];
-            sharesCopy[ch2] = (p.shares && p.shares[ch2]) ? p.shares[ch2] : 0;
-          }
-          playersCopy.push({
-            name: p.name,
-            money: p.money,
-            tiles: p.tiles.slice(),
-            shares: sharesCopy,
-            isAI: p.isAI,
-            personality: p.personality || null
-          });
-        }
-        
-        var gameState = {
-          board: boardCopy,
-          deck: deckCopy,
-          players: playersCopy,
-          currentPlayer: currentPlayer,
-          buysRemaining: buysRemaining,
-          bankShares: bankSharesCopy,
-          tilePlacedThisTurn: tilePlacedThisTurn,
-          currentDifficulty: currentDifficulty,
-          gameStats: {
-            turnsPlayed: gameStats.turnsPlayed || 0,
-            mergersTriggered: gameStats.mergersTriggered || 0,
-            maxSharesInChain: gameStats.maxSharesInChain || 0,
-            chainsOwnedAtOnce: gameStats.chainsOwnedAtOnce || 0,
-            chainsFounded: gameStats.chainsFounded || 0,
-            totalBonuses: gameStats.totalBonuses || 0,
-            wasLastAtMidpoint: gameStats.wasLastAtMidpoint || false,
-            difficulty: gameStats.difficulty || currentDifficulty
-          },
-          timestamp: new Date().toISOString(),
-          version: '2.2'
-        };
-        
+        var gameState = buildSaveState();
         var jsonString = JSON.stringify(gameState);
         
         
@@ -7922,8 +8211,12 @@
         allPlayersStateBeforePlacement = null;
         bankSharesBeforePlacement = null;
         endGameReason = "";
+        endGameAnnounced = false;
+        lastMoveCell = null;
+        mergerSweepInfo = null;
+        displayedMoneyByIdx = {};
         pendingReplacementTile = null;
-        
+
         // Reset replay for loaded game
         gameReplay = [];
         replayIndex = 0;
@@ -7970,11 +8263,17 @@
         
         
         
-        // Check if it's AI's turn and they haven't placed yet
+        // Check if it's AI's turn and resume their turn at the right step
         var currentP = players[currentPlayer];
-        if (currentP && currentP.isAI && !tilePlacedThisTurn) {
+        if (currentP && currentP.isAI) {
           log(currentP.name + "'s turn - AI thinking...", 'ai');
-          setTimeout(function() { runAITurn(); }, 500);
+          setTimeout(function() {
+            if (tilePlacedThisTurn) {
+              runAIBuyAndEnd();
+            } else {
+              runAITilePlacement();
+            }
+          }, 500);
         } else if (currentP && !currentP.isAI) {
           log('Your turn! Select a tile from your rack and place it on the board.', 'player');
         }
@@ -8001,25 +8300,14 @@
     }
     
     function autoSave() {
-      if (autoSaveEnabled && !gameOver) {
-        const gameState = {
-          board: board,
-          deck: deck,
-          players: players,
-          currentPlayer: currentPlayer,
-          buysRemaining: buysRemaining,
-          bankShares: bankShares,
-          tilePlacedThisTurn: tilePlacedThisTurn,
-          timestamp: new Date().toISOString(),
-          version: '1.0',
-          isAutoSave: true
-        };
-        
+      if (autoSaveEnabled && !gameOver && board && players && players.length > 0) {
         try {
+          const gameState = buildSaveState();
+          gameState.isAutoSave = true;
           localStorage.setItem(SAVE_GAME_KEY, JSON.stringify(gameState));
           updateLoadButton();
         } catch (e) {
-          
+
         }
       }
     }
@@ -8519,7 +8807,7 @@
         gameStats.finalMoney = finalMoney;
         gameStats.quickWin = humanWon && gameStats.turnsPlayed < 40;
         gameStats.longGame = gameStats.turnsPlayed >= 80;
-        gameStats.expertWin = humanWon && currentDifficulty === 'expert';
+        gameStats.expertWin = humanWon && currentDifficulty === 'ipo';
         gameStats.comebackWin = humanWon && gameStats.wasLastAtMidpoint;
         
         // Check budget/luxury master
@@ -8904,7 +9192,8 @@
             try {
                 localStorage.removeItem(ACHIEVEMENTS_KEY);
                 localStorage.removeItem(HIGH_SCORES_KEY);
-                localStorage.removeItem('acquireGameSave');
+                localStorage.removeItem(SAVE_GAME_KEY);
+                updateLoadButton();
                 persistentStats = { wins: 0, winStreak: 0, currentStreak: 0, gamesPlayed: 0, unlockedAchievements: {} };
                 updateStatsDisplay();
                 alert('All data has been reset.');
