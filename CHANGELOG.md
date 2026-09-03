@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.1 -- 2026-09-03
+
+Playtest feedback pass (iPad and phone).
+
+### Changed
+- Market table on the main screen: every company with price, bank supply and each player's share count, majority holder highlighted. Replaces the company chips and the "my shares" row.
+- Buy, settle-your-shares, launch and tied-merger panels now dock at the bottom of the screen (beside the board on iPad) instead of covering it. The board stays visible while you decide.
+- Compact buy rows with a fixed footer: the total, the "End turn" and "Buy & end turn" buttons are always visible no matter how many companies are on the board.
+- When you can't afford any share, the panel says so and offers a one-tap "End turn". When your cash blocks the next share, it says "Not enough cash for more".
+- Unplayable tiles in your rack get a red border and are greyed out, labelled DEAD (permanently unplayable) or BLOCKED (illegal right now, e.g. all seven companies are already on the board). Same marking on the board.
+- Two-column layout from iPad portrait up: board and market on the left, rack and decision panels on the right.
+- iPad: double-tap zoom is disabled on the game surface, so a stray tap beside a panel no longer zooms the page.
+
+### Verified
+- A relaunched company (one that was absorbed in a merger and founded again later) grants the founder's free share exactly like a first launch. Covered by a new automated test.
+
 ## 0.2.0 -- 2026-09-03
 
 First public release of the rebuilt game. Replaces the June 2026 single-file prototype on GitHub Pages; the prototype moves to `/classic/`.
